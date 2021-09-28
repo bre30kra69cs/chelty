@@ -1,6 +1,6 @@
 {
   "name": "chelty",
-  "description": "trading bot system",
+  "description": "trading bot monorepa",
   "repository": "git@github.com:bre30kra69cs/chelty.git",
   "author": "Andrey Krasovsky <krasowsckij@yandex-team.ru>",
   "devDependencies": {

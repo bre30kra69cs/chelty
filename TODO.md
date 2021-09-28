@@ -1,4 +1,5 @@
-## Current
+## current
 
-[] Заиниить nest в binance-trading-bot
-[] Подрубиь линовку из packages
+[x] заиниить nest в binance-trading-bot
+[] интегрирровать binance-trading-bot в монорепу
+[] подрубиь линовку из packages

@@ -1,3 +1,3 @@
 # chelty
 
-trading bot system
+trading bot monorepa
