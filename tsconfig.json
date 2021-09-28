@@ -12,7 +12,9 @@
     "downlevelIteration": true,
     "incremental": true,
     "esModuleInterop": true,
-    "isolatedModules": false
+    "isolatedModules": false,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
   },
   "include": ["packages", "services"],
   "exclude": ["node_modules"]
