@@ -1,14 +1,12 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2017",
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "module": "commonjs",
     "noEmit": false,
-    "declaration": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "sourceMap": true
-  }
+    "outDir": "build",
+    "target": "ES2016",
+    "lib": ["ESNext"],
+    "module": "CommonJS",
+    "moduleResolution": "Node"
+  },
+  "include": ["types", "src"]
 }

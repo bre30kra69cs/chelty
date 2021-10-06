@@ -1,11 +1,6 @@
 {
   "compilerOptions": {
     "noEmit": true,
-    "outDir": "build",
-    "target": "ESNext",
-    "lib": ["ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "Node",
     "allowJs": false,
     "strict": true,
     "skipLibCheck": true,
@@ -16,6 +11,5 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["packages", "services"],
   "exclude": ["node_modules"]
 }
