@@ -2,11 +2,17 @@
   "name": "binance-trading-bot",
   "version": "0.1.0",
   "scripts": {
-    "build": "tsc",
+    "build": "./scripts/build.mjs",
+    "source:build": "esbuild src/index.ts --outfile=dist/index.js",
+    "check:types": "tsc --noEmit",
     "binance:types": "./scripts/binance-types.mjs"
   },
   "devDependencies": {
+    "esbuild": "^0.13.4",
     "openapi-typescript": "^4.3.0",
     "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "@binance/connector": "^1.5.0"
   }
 }
