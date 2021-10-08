@@ -8,5 +8,5 @@
     "module": "CommonJS",
     "moduleResolution": "Node"
   },
-  "include": ["types", "src"]
+  "include": ["src"]
 }
