@@ -1,3 +1,5 @@
-type Test = string;
+import dotenv from 'dotenv';
 
-console.log(123412);
+dotenv.config();
+
+console.log(123412, process.env.BINANCE_TESTNET_API_KEY);
