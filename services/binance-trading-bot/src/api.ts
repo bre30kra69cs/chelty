@@ -7,14 +7,14 @@ type IApiSource = {
   stream: string;
 };
 
-const STOP_API_SOURCE: IApiSource = {
+const SPOT_API_SOURCE: IApiSource = {
   baseURL: 'https://api.binance.com',
   api: 'https://api.binance.com/api',
   ws: 'wss://stream.binance.com:9443/ws',
   stream: 'wss://stream.binance.com:9443/stream',
 };
 
-const STOP_TEST_API_SOURCE: IApiSource = {
+const SPOT_TEST_API_SOURCE: IApiSource = {
   baseURL: 'https://testnet.binance.vision',
   api: 'https://testnet.binance.vision/api',
   ws: 'wss://testnet.binance.vision/ws',
@@ -29,5 +29,5 @@ const createBinanceClient = (apiKey: string, secretKey: string, apiSource: IApiS
 export const spotTestClient = createBinanceClient(
   process.env.BINANCE_TESTNET_API_KEY,
   process.env.BINANCE_TESTNET_SECRET_KEY,
-  STOP_TEST_API_SOURCE,
+  SPOT_TEST_API_SOURCE,
 );
