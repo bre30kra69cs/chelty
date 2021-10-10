@@ -4,8 +4,6 @@
   "repository": "git@github.com:bre30kra69cs/chelty.git",
   "author": "Andrey Krasovsky <krasowsckij@yandex-team.ru>",
   "devDependencies": {
-    "@types/node": "^16.10.1",
-    "prettier": "^2.4.1",
-    "typescript": "^4.4.3"
+    "prettier": "^2.4.1"
   }
 }
