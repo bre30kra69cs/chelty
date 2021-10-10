@@ -1,10 +1,13 @@
 import {uniq, isNullable, isObject, isArray, isDict} from './utils';
 
+const ROME = {};
+
+const SPQR = {};
+
+const DUCE = {};
+
 describe('utils', () => {
   test('uniq', () => {
-    const ROME = {};
-    const SPQR = {};
-    const DUCE = {};
     expect(uniq([])).toEqual([]);
     expect(uniq([ROME])).toEqual([ROME]);
     expect(uniq([ROME, SPQR, DUCE])).toEqual([ROME, SPQR, DUCE]);
@@ -34,6 +37,15 @@ describe('utils', () => {
     expect(isObject()).toEqual(false);
     expect(isObject(undefined)).toEqual(false);
     expect(isObject(null)).toEqual(false);
+    expect(isObject(0)).toEqual(false);
+    expect(isObject(0.1)).toEqual(false);
+    expect(isObject(NaN)).toEqual(false);
+    expect(isObject(Infinity)).toEqual(false);
+    expect(isObject('')).toEqual(false);
+    expect(isObject(' ')).toEqual(false);
+    expect(isObject('rome')).toEqual(false);
+    expect(isObject(false)).toEqual(false);
+    expect(isObject(true)).toEqual(false);
     expect(isObject([])).toEqual(true);
     expect(isObject(['rome'])).toEqual(true);
     expect(isObject({})).toEqual(true);
@@ -44,14 +56,37 @@ describe('utils', () => {
     expect(isArray()).toEqual(false);
     expect(isArray(undefined)).toEqual(false);
     expect(isArray(null)).toEqual(false);
+    expect(isArray(0)).toEqual(false);
+    expect(isArray(0.1)).toEqual(false);
+    expect(isArray(NaN)).toEqual(false);
+    expect(isArray(Infinity)).toEqual(false);
+    expect(isArray('')).toEqual(false);
+    expect(isArray(' ')).toEqual(false);
+    expect(isArray('rome')).toEqual(false);
+    expect(isArray(false)).toEqual(false);
+    expect(isArray(true)).toEqual(false);
     expect(isArray([])).toEqual(true);
     expect(isArray(['rome'])).toEqual(true);
+    expect(isArray({})).toEqual(false);
+    expect(isArray(() => {})).toEqual(false);
   });
 
   test('isDict', () => {
     expect(isDict()).toEqual(false);
     expect(isDict(undefined)).toEqual(false);
     expect(isDict(null)).toEqual(false);
+    expect(isDict(0)).toEqual(false);
+    expect(isDict(0.1)).toEqual(false);
+    expect(isDict(NaN)).toEqual(false);
+    expect(isDict(Infinity)).toEqual(false);
+    expect(isDict('')).toEqual(false);
+    expect(isDict(' ')).toEqual(false);
+    expect(isDict('rome')).toEqual(false);
+    expect(isDict(false)).toEqual(false);
+    expect(isDict(true)).toEqual(false);
+    expect(isDict([])).toEqual(false);
+    expect(isDict(['rome'])).toEqual(false);
     expect(isDict({})).toEqual(true);
+    expect(isDict(() => {})).toEqual(false);
   });
 });

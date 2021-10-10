@@ -1,4 +1,4 @@
-import {uniq} from './utils';
+import {uniq, isObject} from './utils';
 
 type IMessage = unknown;
 
@@ -52,5 +52,5 @@ export class Logger implements ILogger {
 }
 
 export const jsonFormatter = (message: IMessage) => {
-  return JSON.stringify(message, null, 2);
+  return isObject(message) ? JSON.stringify(message, null, 2) : `${message}`;
 };
