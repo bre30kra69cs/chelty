@@ -1,3 +1,3 @@
-const dotenv = require('dotenv');
+'use strict';
 
-dotenv.config();
+require('./init');
