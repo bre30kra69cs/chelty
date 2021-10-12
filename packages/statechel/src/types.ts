@@ -68,4 +68,5 @@ export type Activator = {
   push: Lifecycle<Node>;
   getActive: () => Node[];
   isActive: (node: Node) => boolean;
+  onPush: Lifecycle<(node: Node) => void>;
 };
