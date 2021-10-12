@@ -38,13 +38,11 @@ export type Scheme = State & {
 
 export type Node = State | Scheme;
 
-export type Unlisten = () => void;
-
-export type Listen<T> = (listner: T) => Unlisten;
+export type Lifecycle<T> = (listner: T) => () => void;
 
 export type Machine = Engine & {
-  onState: Listen<(node: Node) => void>;
-  onUnhandle: Listen<(spark: Spark) => void>;
+  onState: Lifecycle<(node: Node) => void>;
+  onUnhandle: Lifecycle<(spark: Spark) => void>;
   eject: () => Scheme;
   combine: (machine: Machine) => Machine;
 };
@@ -56,12 +54,18 @@ export type Queue = {
   last: () => Undefinable<Spark>;
   tail: () => Spark[];
   body: () => Spark[];
-  onShift: Listen<(spark: Spark) => void>;
+  onShift: Lifecycle<(spark: Spark) => void>;
 };
 
 export type EmitterAction<T> = (message: T) => void;
 
 export type Emitter<T> = {
   emit: EmitterAction<T>;
-  listen: Listen<EmitterAction<T>>;
+  listen: Lifecycle<EmitterAction<T>>;
+};
+
+export type Activator = {
+  push: Lifecycle<Node>;
+  getActive: () => Node[];
+  isActive: (node: Node) => boolean;
 };
