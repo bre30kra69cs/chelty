@@ -1,3 +1,5 @@
+export type Assign<T, P> = T & P;
+
 export type Undefinable<T> = T | undefined;
 
 export type Engine = {
@@ -31,19 +33,25 @@ export type Lever = {
   to: Node;
 };
 
-export type Scheme = State & {
-  init: Node;
-  levers: Lever[];
-};
+export type Scheme = Assign<
+  State,
+  {
+    init: Node;
+    levers: Lever[];
+  }
+>;
 
 export type Node = State | Scheme;
 
 export type Lifecycle<T> = (listner: T) => () => void;
 
-export type Machine = Engine & {
-  eject: () => Scheme;
-  onChange: Lifecycle<() => void>;
-};
+export type Machine = Assign<
+  Engine,
+  {
+    eject: () => Scheme;
+    onChange: Lifecycle<() => void>;
+  }
+>;
 
 export type Queue = {
   push: (spark: Spark) => void;
@@ -67,4 +75,11 @@ export type Activator = {
   getActive: () => Node[];
   isActive: (node: Node) => boolean;
   onChange: Lifecycle<() => void>;
+};
+
+export type Locker = {
+  lock: () => void;
+  unlock: () => void;
+  toggle: () => void;
+  isLocked: () => boolean;
 };
