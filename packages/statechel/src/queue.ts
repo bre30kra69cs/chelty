@@ -3,7 +3,6 @@ import {createEmitter} from './emitter';
 
 export const createQueue = (): Queue => {
   const sparks: Spark[] = [];
-
   const emitter = createEmitter<Spark>();
 
   const push = (spark: Spark) => {

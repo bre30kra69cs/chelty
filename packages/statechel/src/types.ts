@@ -41,10 +41,8 @@ export type Node = State | Scheme;
 export type Lifecycle<T> = (listner: T) => () => void;
 
 export type Machine = Engine & {
-  onState: Lifecycle<(node: Node) => void>;
-  onUnhandle: Lifecycle<(spark: Spark) => void>;
   eject: () => Scheme;
-  combine: (machine: Machine) => Machine;
+  onChange: Lifecycle<() => void>;
 };
 
 export type Queue = {
@@ -68,5 +66,5 @@ export type Activator = {
   push: Lifecycle<Node>;
   getActive: () => Node[];
   isActive: (node: Node) => boolean;
-  onPush: Lifecycle<(node: Node) => void>;
+  onChange: Lifecycle<() => void>;
 };

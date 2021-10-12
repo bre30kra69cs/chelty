@@ -1,11 +1,9 @@
 import {Activator, Node, Lifecycle} from './types';
 import {createEmitter} from './emitter';
-import exp from 'constants';
 
 export const createActivator = (): Activator => {
   let active: Node[] = [];
-
-  const emitter = createEmitter<Node>();
+  const emitter = createEmitter();
 
   const remove = (node: Node) => {
     active = active.filter((thing) => thing !== node);
@@ -14,8 +12,12 @@ export const createActivator = (): Activator => {
   const push = (node: Node) => {
     remove(node);
     active.push(node);
-    emitter.emit(node);
-    return () => remove(node);
+    emitter.emit();
+
+    return () => {
+      remove(node);
+      emitter.emit();
+    };
   };
 
   const getActive = () => {
@@ -26,7 +28,7 @@ export const createActivator = (): Activator => {
     return active.some((thing) => thing === node);
   };
 
-  const onPush: Lifecycle<(node: Node) => void> = (listner) => {
+  const onChange: Lifecycle<() => void> = (listner) => {
     return emitter.listen(listner);
   };
 
@@ -34,6 +36,6 @@ export const createActivator = (): Activator => {
     push,
     getActive,
     isActive,
-    onPush,
+    onChange,
   };
 };
