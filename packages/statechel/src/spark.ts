@@ -1,9 +1,10 @@
 import exp from 'constants';
 import {Spark} from './types';
 
-export const createSpark = (name = 'spark'): Spark => {
+export const createSpark = (spark: Spark = {}): Spark => {
   return {
-    name,
+    name: spark.name ?? 'spark',
+    ...spark,
   };
 };
 
