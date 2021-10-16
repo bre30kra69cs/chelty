@@ -19,10 +19,15 @@ export const createLocker = (init = false): Locker => {
     return state;
   };
 
+  const isUnlocked = () => {
+    return !isLocked();
+  };
+
   return {
     lock,
     unlock,
     toggle,
     isLocked,
+    isUnlocked,
   };
 };

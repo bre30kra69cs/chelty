@@ -10,6 +10,7 @@ export type Engine = {
 
 export type Spark = {
   name?: string;
+  type: 'external' | 'internal';
 };
 
 export type Action = (engine: Engine) => void;
@@ -82,4 +83,5 @@ export type Locker = {
   unlock: () => void;
   toggle: () => void;
   isLocked: () => boolean;
+  isUnlocked: () => boolean;
 };

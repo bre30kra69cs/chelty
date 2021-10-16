@@ -3,6 +3,7 @@ import {createEmitter} from './emitter';
 
 export const createActivator = (): Activator => {
   let active: Node[] = [];
+
   const emitter = createEmitter();
 
   const remove = (node: Node) => {

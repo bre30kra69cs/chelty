@@ -1,21 +1,13 @@
-import {Spark, Engine, Queue, Activator, Node} from './types';
+import {Spark, Engine, Queue, Activator, Node, Locker} from './types';
 
-export const createEngine = (queue: Queue, activator: Activator): Engine => {
+export const createEngine = (queue: Queue, activator: Activator, locker: Locker): Engine => {
   const send = (spark: Spark) => {
     queue.push(spark);
   };
 
-  const getActive = () => {
-    return activator.getActive();
-  };
-
-  const isActive = (node: Node) => {
-    return activator.isActive(node);
-  };
-
   return {
+    getActive: activator.getActive,
+    isActive: activator.isActive,
     send,
-    getActive,
-    isActive,
   };
 };

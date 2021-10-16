@@ -1,11 +1,16 @@
 import exp from 'constants';
 import {Spark} from './types';
 
-export const createSpark = (spark: Spark = {}): Spark => {
+export const createExternalSpark = (name = 'spark'): Spark => {
   return {
-    name: spark.name ?? 'spark',
-    ...spark,
+    name,
+    type: 'external',
   };
 };
 
-export const spark = createSpark;
+export const createInternalSpark = (name = 'spark'): Spark => {
+  return {
+    name,
+    type: 'internal',
+  };
+};
