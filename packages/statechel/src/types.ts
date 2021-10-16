@@ -2,18 +2,22 @@ export type Assign<T, P> = T & P;
 
 export type Undefinable<T> = T | undefined;
 
-export type Engine = {
-  send: (spark: Spark) => void;
+export type Engine<T> = {
+  send: (value: T) => void;
   getActive: () => Node[];
   isActive: (node: Node) => boolean;
 };
 
 export type Spark = {
   name?: string;
+};
+
+export type SparkContainer = {
+  spark: Spark;
   type: 'external' | 'internal';
 };
 
-export type Action = (engine: Engine) => void;
+export type Action = (engine: Engine<Spark>) => void;
 
 export type State = {
   name?: string;
@@ -47,21 +51,25 @@ export type Node = State | Scheme;
 export type Lifecycle<T> = (listner: T) => () => void;
 
 export type Machine = Assign<
-  Engine,
+  Engine<Spark>,
   {
     eject: () => Scheme;
     onChange: Lifecycle<() => void>;
+    start: () => void;
+    stop: () => void;
+    isStarted: () => boolean;
+    isStoped: () => void;
   }
 >;
 
-export type Queue = {
-  push: (spark: Spark) => void;
-  shift: () => Undefinable<Spark>;
-  head: () => Undefinable<Spark>;
-  last: () => Undefinable<Spark>;
-  tail: () => Spark[];
-  body: () => Spark[];
-  onShift: Lifecycle<(spark: Spark) => void>;
+export type Queue<T> = {
+  push: (value: T) => void;
+  shift: () => Undefinable<T>;
+  head: () => Undefinable<T>;
+  last: () => Undefinable<T>;
+  tail: () => T[];
+  body: () => T[];
+  onShift: Lifecycle<(value: T) => void>;
 };
 
 export type EmitterAction<T> = (message: T) => void;
@@ -90,8 +98,23 @@ export type Builder = {
   build: (scheme: Scheme) => void;
 };
 
-export type StateBuild = Required<State>;
+export type ActionBuild = () => void;
 
-export type TransitionBuild = Required<Transition>;
+export type StateBuild = {
+  name: string;
+  onIn: ActionBuild;
+  onOut: ActionBuild;
+};
 
-export type SchemeBuild = Required<Scheme>;
+export type TransitionBuild = {
+  name: string;
+  onEnter: ActionBuild;
+};
+
+export type SchemeBuild = {
+  init: Node;
+  levers: Lever[];
+  name: string;
+  onIn: ActionBuild;
+  onOut: ActionBuild;
+};

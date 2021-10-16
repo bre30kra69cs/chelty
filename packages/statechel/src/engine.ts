@@ -1,13 +1,42 @@
-import {Spark, Engine, Queue, Activator, Node, Locker} from './types';
+import {Spark, Engine, Queue, Activator, SparkContainer, Locker} from './types';
+import {createInternalSparkContainer, createExternalSparkContainer} from './spark';
 
-export const createEngine = (queue: Queue, activator: Activator, locker: Locker): Engine => {
-  const send = (spark: Spark) => {
-    queue.push(spark);
+export const createEngine = (
+  queue: Queue<SparkContainer>,
+  activator: Activator,
+  locker: Locker,
+): Engine<SparkContainer> => {
+  const send = (sparkContainer: SparkContainer) => {
+    queue.push(sparkContainer);
   };
 
   return {
     getActive: activator.getActive,
     isActive: activator.isActive,
+    send,
+  };
+};
+
+export const adaptInternalEngine = (engine: Engine<SparkContainer>): Engine<Spark> => {
+  const send = (spark: Spark) => {
+    engine.send(createInternalSparkContainer(spark));
+  };
+
+  return {
+    getActive: engine.getActive,
+    isActive: engine.isActive,
+    send,
+  };
+};
+
+export const adaptExternalEngine = (engine: Engine<SparkContainer>): Engine<Spark> => {
+  const send = (spark: Spark) => {
+    engine.send(createExternalSparkContainer(spark));
+  };
+
+  return {
+    getActive: engine.getActive,
+    isActive: engine.isActive,
     send,
   };
 };

@@ -7,49 +7,47 @@ import {
   Transition,
   TransitionBuild,
   SchemeBuild,
+  Engine,
+  Spark,
 } from './types';
 
-export const createBuilder = (locker: Locker): Builder => {
+export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder => {
+  const buildAction = (action: () => void) => () => {
+    locker.lock();
+    action();
+    locker.unlock();
+  };
+
   const buildState = (state: State): StateBuild => {
     return {
       name: state.name ?? 'state',
-      onIn: (engine) => {
-        locker.lock();
+      onIn: buildAction(() => {
         state?.onIn?.(engine);
-        locker.unlock();
-      },
-      onOut: (engine) => {
-        locker.lock();
+      }),
+      onOut: buildAction(() => {
         state?.onOut?.(engine);
-        locker.unlock();
-      },
+      }),
     };
   };
 
   const buildTransition = (transition: Transition): TransitionBuild => {
     return {
       name: transition.name ?? 'transition',
-      onEnter: (engine) => {
-        locker.lock();
+      onEnter: buildAction(() => {
         transition?.onEnter?.(engine);
-        locker.unlock();
-      },
+      }),
     };
   };
 
   const buildScheme = (scheme: Scheme): SchemeBuild => {
     return {
       name: scheme.name ?? 'scheme',
-      onIn: (engine) => {
-        locker.lock();
+      onIn: buildAction(() => {
         scheme?.onIn?.(engine);
-        locker.unlock();
-      },
-      onOut: (engine) => {
-        locker.lock();
+      }),
+      onOut: buildAction(() => {
         scheme?.onOut?.(engine);
-        locker.unlock();
-      },
+      }),
       init: scheme.init,
       levers: scheme.levers,
     };

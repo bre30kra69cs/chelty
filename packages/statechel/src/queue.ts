@@ -1,44 +1,44 @@
-import {Spark, Queue} from './types';
+import {SparkContainer, Queue} from './types';
 import {createEmitter} from './emitter';
 
-export const createQueue = (): Queue => {
-  const sparks: Spark[] = [];
+export const createQueue = (): Queue<SparkContainer> => {
+  const sparksContainers: SparkContainer[] = [];
 
-  const emitter = createEmitter<Spark>();
+  const emitter = createEmitter<SparkContainer>();
 
-  const push = (spark: Spark) => {
-    sparks.push(spark);
+  const push = (sparkContainer: SparkContainer) => {
+    sparksContainers.push(sparkContainer);
   };
 
   const shift = () => {
-    const spark = sparks.shift();
+    const sparksContainer = sparksContainers.shift();
 
-    if (spark) {
-      emitter.emit(spark);
+    if (sparksContainer) {
+      emitter.emit(sparksContainer);
     }
 
-    return spark;
+    return sparksContainer;
   };
 
   const head = () => {
-    return sparks.at(0);
+    return sparksContainers.at(0);
   };
 
   const last = () => {
-    return sparks.at(-1);
+    return sparksContainers.at(-1);
   };
 
   const tail = () => {
-    const [, ...rest] = sparks;
+    const [, ...rest] = sparksContainers;
     return rest;
   };
 
   const body = () => {
-    const [, ...rest] = [...sparks].reverse();
+    const [, ...rest] = [...sparksContainers].reverse();
     return rest.reverse();
   };
 
-  const onShift = (listner: (spark: Spark) => void) => {
+  const onShift = (listner: (sparkContainer: SparkContainer) => void) => {
     return emitter.listen(listner);
   };
 
