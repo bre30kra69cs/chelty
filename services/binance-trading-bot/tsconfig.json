@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "build",
+    "target": "ES2016",
+    "lib": ["ESNext"],
+    "module": "CommonJS",
+    "moduleResolution": "Node"
+  },
+  "include": ["typings", "src", "tests"]
+}

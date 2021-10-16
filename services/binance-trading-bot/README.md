@@ -1,3 +1,5 @@
+# binance-trading-bot
+
 ## API
 
 https://github.com/binance/binance-spot-api-docs
