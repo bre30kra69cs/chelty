@@ -3,6 +3,7 @@ import {createQueue} from './queue';
 import {createActivator} from './activator';
 import {createEngine} from './engine';
 import {createLocker} from './locker';
+import {createBuilder} from './builder';
 
 export const createMachine = (scheme: Scheme): Machine => {
   const activator = createActivator();
@@ -10,6 +11,8 @@ export const createMachine = (scheme: Scheme): Machine => {
   const queue = createQueue();
 
   const locker = createLocker();
+
+  const builder = createBuilder(locker);
 
   const engine = createEngine(queue, activator, locker);
 

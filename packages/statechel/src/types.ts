@@ -85,3 +85,13 @@ export type Locker = {
   isLocked: () => boolean;
   isUnlocked: () => boolean;
 };
+
+export type Builder = {
+  build: (scheme: Scheme) => void;
+};
+
+export type StateBuild = Required<State>;
+
+export type TransitionBuild = Required<Transition>;
+
+export type SchemeBuild = Required<Scheme>;
