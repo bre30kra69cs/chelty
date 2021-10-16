@@ -30,6 +30,12 @@ export const createMachine = (scheme: Scheme): Machine => {
     }
   };
 
+  const init = () => {
+    builder.build(scheme);
+  };
+
+  init();
+
   return {
     getActive: engine.getActive,
     isActive: engine.isActive,

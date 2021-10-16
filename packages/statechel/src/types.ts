@@ -23,6 +23,7 @@ export type State = {
   name?: string;
   onIn?: Action;
   onOut?: Action;
+  type: 'state';
 };
 
 export type Transition = {
@@ -38,13 +39,14 @@ export type Lever = {
   to: Node;
 };
 
-export type Scheme = Assign<
-  State,
-  {
-    init: Node;
-    levers: Lever[];
-  }
->;
+export type Scheme = {
+  init: Node;
+  levers: Lever[];
+  type: 'scheme';
+  name?: string;
+  onIn?: Action;
+  onOut?: Action;
+};
 
 export type Node = State | Scheme;
 
@@ -95,7 +97,7 @@ export type Locker = {
 };
 
 export type Builder = {
-  build: (scheme: Scheme) => void;
+  build: (scheme: Scheme) => SchemeBuild;
 };
 
 export type ActionBuild = () => void;
@@ -111,10 +113,25 @@ export type TransitionBuild = {
   onEnter: ActionBuild;
 };
 
+export type LeverBuild = {
+  name: string;
+  from: NodeBuild;
+  spark: Spark;
+  transition: TransitionBuild;
+  to: NodeBuild;
+};
+
 export type SchemeBuild = {
-  init: Node;
-  levers: Lever[];
+  init: NodeBuild;
+  levers: LeverBuild[];
   name: string;
   onIn: ActionBuild;
   onOut: ActionBuild;
+};
+
+export type NodeBuild = StateBuild | SchemeBuild;
+
+export type Mapper<T, V> = {
+  set: (key: T, value: V) => void;
+  get: (key: T) => void;
 };

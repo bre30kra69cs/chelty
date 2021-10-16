@@ -1,4 +1,3 @@
-import exp from 'constants';
 import {Spark, SparkContainer} from './types';
 
 export const createSpark = (spark: Spark = {}): Spark => {

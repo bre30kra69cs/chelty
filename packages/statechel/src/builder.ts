@@ -9,7 +9,12 @@ import {
   SchemeBuild,
   Engine,
   Spark,
+  Node,
+  NodeBuild,
+  Lever,
+  LeverBuild,
 } from './types';
+import {isState} from './node';
 
 export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder => {
   const buildAction = (action: () => void) => () => {
@@ -48,12 +53,32 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
       onOut: buildAction(() => {
         scheme?.onOut?.(engine);
       }),
-      init: scheme.init,
-      levers: scheme.levers,
+      init: buildNode(scheme.init),
+      levers: scheme.levers.map(buildLever),
     };
   };
 
-  const build = (scheme: Scheme) => {};
+  const buildNode = (node: Node): NodeBuild => {
+    if (isState(node)) {
+      return buildState(node);
+    }
+
+    return buildScheme(node);
+  };
+
+  const buildLever = (lever: Lever): LeverBuild => {
+    return {
+      name: lever.name ?? 'lever',
+      from: buildNode(lever.from),
+      spark: lever.spark,
+      transition: buildTransition(lever.transition),
+      to: buildNode(lever.to),
+    };
+  };
+
+  const build = (scheme: Scheme): SchemeBuild => {
+    return buildScheme(scheme);
+  };
 
   return {
     build,
