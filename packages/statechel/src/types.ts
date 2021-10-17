@@ -32,9 +32,9 @@ export type Lever = {
 };
 
 export type Scheme = {
-  init: Scheme;
-  levers?: Lever[];
   name?: string;
+  levers?: Lever[];
+  childrens?: Scheme[];
   onIn?: Action;
   onOut?: Action;
 };
@@ -113,13 +113,14 @@ export type LeverBuild = {
 };
 
 export type SchemeBuild = {
-  isRoot: boolean;
-  init: SchemeBuild;
-  levers: LeverBuild[];
   name: string;
+  isRoot: boolean;
+  levers: LeverBuild[];
   source: Scheme;
+  childrens: SchemeBuild[];
   onIn: ActionBuild;
   onOut: ActionBuild;
+  parent?: SchemeBuild;
 };
 
 export type Mapper<T, V> = {

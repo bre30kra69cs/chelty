@@ -4,10 +4,6 @@ export const tap = <T>(value: T): T => {
   return value;
 };
 
-export const isCompoundScheme = (scheme: Scheme) => {
-  return !!scheme?.levers?.length;
-};
-
-export const isAtomicScheme = (scheme: Scheme) => {
-  return !isCompoundScheme(scheme);
+export const isParallelScheme = (scheme: Scheme) => {
+  return !!scheme?.childrens.length;
 };

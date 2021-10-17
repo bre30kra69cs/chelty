@@ -35,36 +35,36 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
     };
   };
 
-  const buildScheme = (scheme: Scheme): SchemeBuild => {
-    const schemeBuild = {
+  const buildScheme = (scheme: Scheme, parent?: SchemeBuild): SchemeBuild => {
+    const schemeBuild: SchemeBuild = {
       isRoot: false,
       name: scheme.name ?? DEFAULT_SCHEME_NAME,
       source: scheme,
+      childrens: [],
+      levers: [],
+      parent,
       onIn: buildAction(() => {
         scheme?.onIn?.(engine);
       }),
       onOut: buildAction(() => {
         scheme?.onOut?.(engine);
       }),
-      init: buildScheme(scheme.init),
-      levers: [],
     };
 
-    schemeBuild.levers = scheme.levers.map(buildLever(schemeBuild, scheme));
+    schemeBuild.levers = scheme.levers.map((lever) => buildLever(lever, scheme, schemeBuild));
+    schemeBuild.childrens = scheme.childrens.map((children) => buildScheme(children, schemeBuild));
 
     return schemeBuild;
   };
 
-  const buildLever =
-    (schemeBuild: SchemeBuild, scheme: Scheme) =>
-    (lever: Lever): LeverBuild => {
-      return {
-        name: lever.name ?? DEFAULT_LEVER_NAME,
-        spark: lever.spark,
-        transition: buildTransition(lever.transition),
-        to: lever.to === scheme ? schemeBuild : buildScheme(lever.to),
-      };
+  const buildLever = (lever: Lever, scheme: Scheme, schemeBuild: SchemeBuild): LeverBuild => {
+    return {
+      name: lever.name ?? DEFAULT_LEVER_NAME,
+      spark: lever.spark,
+      transition: buildTransition(lever.transition),
+      to: lever.to === scheme ? schemeBuild : buildScheme(lever.to, schemeBuild),
     };
+  };
 
   const build = (scheme: Scheme): SchemeBuild => {
     const schemeBuild = buildScheme(scheme);
