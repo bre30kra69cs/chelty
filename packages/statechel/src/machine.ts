@@ -1,4 +1,4 @@
-import {Machine, Scheme, SchemeBuild, Spark} from './types';
+import {Machine, State, StateBuild, Spark} from './types';
 import {createQueue} from './queue';
 import {createActivator} from './activator';
 import {createEngine, adaptInternalEngine, adaptExternalEngine} from './engine';
@@ -7,7 +7,7 @@ import {createBuilder} from './builder';
 import {RUN_SYSTEM_SPARK} from './predefined';
 import {createStore} from './store';
 
-export const createMachine = (scheme: Scheme): Machine => {
+export const createMachine = (state: State): Machine => {
   const destroyStore = createStore(false);
 
   const activator = createActivator();
@@ -26,7 +26,7 @@ export const createMachine = (scheme: Scheme): Machine => {
   const builder = createBuilder(locker, internalEngine);
 
   const eject = () => {
-    return scheme;
+    return state;
   };
 
   const send = (spark: Spark) => {
@@ -46,8 +46,8 @@ export const createMachine = (scheme: Scheme): Machine => {
     machineLocker.lock();
   };
 
-  const schemeBuild = builder.build(scheme);
-  activator.push(schemeBuild);
+  const stateBuild = builder.build(state);
+  activator.push(stateBuild);
 
   const unlistenPushQueue = queue.onPush(() => {
     if (locker.isLocked()) {
@@ -67,15 +67,15 @@ export const createMachine = (scheme: Scheme): Machine => {
     destroyStore.set(true);
   };
 
-  const onRemove = (listner: (scheme: Scheme) => void) => {
-    return activator.onRemove((schemeBuild) => {
-      listner(schemeBuild.source);
+  const onRemove = (listner: (state: State) => void) => {
+    return activator.onRemove((stateBuild) => {
+      listner(stateBuild.source);
     });
   };
 
-  const onPush = (listner: (scheme: Scheme) => void) => {
-    return activator.onPush((schemeBuild) => {
-      listner(schemeBuild.source);
+  const onPush = (listner: (state: State) => void) => {
+    return activator.onPush((stateBuild) => {
+      listner(stateBuild.source);
     });
   };
 

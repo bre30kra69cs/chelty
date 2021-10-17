@@ -1,34 +1,34 @@
-import {Activator, SchemeBuild} from './types';
+import {Activator, StateBuild} from './types';
 import {createEmitter} from './emitter';
 import {createStore} from './store';
 
 export const createActivator = (): Activator => {
-  const activeStore = createStore<SchemeBuild[]>([]);
+  const activeStore = createStore<StateBuild[]>([]);
 
-  const pushEmitter = createEmitter<SchemeBuild>();
+  const pushEmitter = createEmitter<StateBuild>();
 
-  const removeEmitter = createEmitter<SchemeBuild>();
+  const removeEmitter = createEmitter<StateBuild>();
 
   const getActive = () => {
     return [...activeStore.get()];
   };
 
-  const isActive = (schemeBuild: SchemeBuild) => {
-    return activeStore.get().some((value) => value === schemeBuild);
+  const isActive = (stateBuild: StateBuild) => {
+    return activeStore.get().some((value) => value === stateBuild);
   };
 
-  const remove = (schemeBuild: SchemeBuild) => {
-    activeStore.map((value) => value.filter((item) => item !== schemeBuild));
-    removeEmitter.emit(schemeBuild);
+  const remove = (stateBuild: StateBuild) => {
+    activeStore.map((value) => value.filter((item) => item !== stateBuild));
+    removeEmitter.emit(stateBuild);
   };
 
-  const push = (schemeBuild: SchemeBuild) => {
-    if (isActive(schemeBuild)) {
+  const push = (stateBuild: StateBuild) => {
+    if (isActive(stateBuild)) {
       return;
     }
 
-    activeStore.get().push(schemeBuild);
-    pushEmitter.emit(schemeBuild);
+    activeStore.get().push(stateBuild);
+    pushEmitter.emit(stateBuild);
   };
 
   return {

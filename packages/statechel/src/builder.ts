@@ -1,10 +1,10 @@
 import {
   Builder,
   Locker,
-  Scheme,
   Transition,
   TransitionBuild,
-  SchemeBuild,
+  State,
+  StateBuild,
   Engine,
   Spark,
   Lever,
@@ -30,54 +30,58 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
       name: transition.name ?? DEFAULT_TRANSITION_NAME,
       source: transition,
       onEnter: buildAction(() => {
+        // TODO: use copy
         transition?.onEnter?.(engine);
       }),
     };
   };
 
-  const buildScheme = (scheme: Scheme, parent?: SchemeBuild): SchemeBuild => {
-    const schemeBuild: SchemeBuild = {
+  const buildState = (state: State, parent?: StateBuild): StateBuild => {
+    const stateBuild: StateBuild = {
+      id: state.id,
+      name: state.name ?? DEFAULT_SCHEME_NAME,
       isRoot: false,
-      name: scheme.name ?? DEFAULT_SCHEME_NAME,
-      source: scheme,
+      source: state,
       childrens: [],
       levers: [],
       parent,
       onIn: buildAction(() => {
-        scheme?.onIn?.(engine);
+        // TODO: use copy
+        state?.onIn?.(engine);
       }),
       onOut: buildAction(() => {
-        scheme?.onOut?.(engine);
+        // TODO: use copy
+        state?.onOut?.(engine);
       }),
     };
 
-    schemeBuild.levers = scheme.levers.map((lever) => buildLever(lever, scheme, schemeBuild));
-    schemeBuild.childrens = scheme.childrens.map((children) => buildScheme(children, schemeBuild));
+    stateBuild.levers = state.levers.map((lever) => buildLever(lever, state, stateBuild));
+    stateBuild.childrens = state.childrens.map((children) => buildState(children, stateBuild));
 
-    return schemeBuild;
+    return stateBuild;
   };
 
-  const buildLever = (lever: Lever, scheme: Scheme, schemeBuild: SchemeBuild): LeverBuild => {
+  const buildLever = (lever: Lever, state: State, stateBuild: StateBuild): LeverBuild => {
     return {
       name: lever.name ?? DEFAULT_LEVER_NAME,
       spark: lever.spark,
       transition: buildTransition(lever.transition),
-      to: lever.to === scheme ? schemeBuild : buildScheme(lever.to, schemeBuild),
+      to: lever.to === state ? stateBuild : buildState(lever.to, stateBuild),
     };
   };
 
-  const build = (scheme: Scheme): SchemeBuild => {
-    const schemeBuild = buildScheme(scheme);
+  const build = (state: State): StateBuild => {
+    const stateBuild = buildState(state);
 
-    schemeBuild.isRoot = true;
-    schemeBuild.levers.push({
+    stateBuild.isRoot = true;
+    stateBuild.levers.push({
       name: SYSTEM_RUN_NAME,
       spark: RUN_SYSTEM_SPARK,
       transition: buildTransition(RUN_SYSTEM_TRANSITION),
-      to: schemeBuild,
+      to: stateBuild,
     });
 
-    return schemeBuild;
+    return stateBuild;
   };
 
   return {

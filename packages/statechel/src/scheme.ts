@@ -1,7 +1,7 @@
-import {Scheme} from './types';
+import {State} from './types';
 
-export const createScheme = (scheme: Scheme = {}) => {
+export const createState = (state: State) => {
   return {
-    ...scheme,
+    ...state,
   };
 };

@@ -1,9 +1,9 @@
-import {Scheme} from './types';
+import {State} from './types';
 
 export const tap = <T>(value: T): T => {
   return value;
 };
 
-export const isParallelScheme = (scheme: Scheme) => {
-  return !!scheme?.childrens.length;
+export const isParallelState = (state: State) => {
+  return !!state?.childrens.length;
 };

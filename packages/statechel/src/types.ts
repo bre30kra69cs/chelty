@@ -4,11 +4,12 @@ export type Undefinable<T> = T | undefined;
 
 export type Engine<T> = {
   send: (value: T) => void;
-  getActive: () => SchemeBuild[];
-  isActive: (schemeBuild: SchemeBuild) => boolean;
+  getActive: () => StateBuild[];
+  isActive: (stateBuild: StateBuild) => boolean;
 };
 
 export type Spark = {
+  id: string;
   name?: string;
 };
 
@@ -25,16 +26,17 @@ export type Transition = {
 };
 
 export type Lever = {
-  name?: string;
   spark: Spark;
   transition: Transition;
-  to: Scheme;
+  to: State;
+  name?: string;
 };
 
-export type Scheme = {
+export type State = {
+  id: string;
   name?: string;
   levers?: Lever[];
-  childrens?: Scheme[];
+  childrens?: State[];
   onIn?: Action;
   onOut?: Action;
 };
@@ -43,7 +45,7 @@ export type Lifecycle<T> = (listner: T) => () => void;
 
 export type Machine = {
   send: (spark: Spark) => void;
-  eject: () => Scheme;
+  eject: () => State;
   start: () => void;
   stop: () => void;
   isStarted: () => boolean;
@@ -52,8 +54,8 @@ export type Machine = {
   forceStop: () => void;
   destroy: () => void;
   isDestroyed: () => boolean;
-  onRemove: Lifecycle<(scheme: Scheme) => void>;
-  onPush: Lifecycle<(scheme: Scheme) => void>;
+  onRemove: Lifecycle<(state: State) => void>;
+  onPush: Lifecycle<(state: State) => void>;
 };
 
 export type Queue<T> = {
@@ -77,12 +79,12 @@ export type Emitter<T> = {
 };
 
 export type Activator = {
-  push: (schemeBuild: SchemeBuild) => void;
-  remove: (schemeBuild: SchemeBuild) => void;
-  getActive: () => SchemeBuild[];
-  isActive: (schemeBuild: SchemeBuild) => boolean;
-  onRemove: Lifecycle<(schemeBuild: SchemeBuild) => void>;
-  onPush: Lifecycle<(schemeBuild: SchemeBuild) => void>;
+  push: (stateBuild: StateBuild) => void;
+  remove: (stateBuild: StateBuild) => void;
+  getActive: () => StateBuild[];
+  isActive: (stateBuild: StateBuild) => boolean;
+  onRemove: Lifecycle<(stateBuild: StateBuild) => void>;
+  onPush: Lifecycle<(stateBuild: StateBuild) => void>;
 };
 
 export type Locker = {
@@ -94,7 +96,7 @@ export type Locker = {
 };
 
 export type Builder = {
-  build: (scheme: Scheme) => SchemeBuild;
+  build: (state: State) => StateBuild;
 };
 
 export type ActionBuild = () => void;
@@ -109,18 +111,20 @@ export type LeverBuild = {
   name: string;
   spark: Spark;
   transition: TransitionBuild;
-  to: SchemeBuild;
+  from?: StateBuild;
+  to: StateBuild;
 };
 
-export type SchemeBuild = {
+export type StateBuild = {
+  id: string;
   name: string;
   isRoot: boolean;
   levers: LeverBuild[];
-  source: Scheme;
-  childrens: SchemeBuild[];
+  source: State;
+  childrens: StateBuild[];
   onIn: ActionBuild;
   onOut: ActionBuild;
-  parent?: SchemeBuild;
+  parent?: StateBuild;
 };
 
 export type Mapper<T, V> = {

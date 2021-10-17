@@ -1,7 +1,7 @@
 import {Spark, SparkContainer} from './types';
 import {DEFAULT_SPARK_NAME} from './names';
 
-export const createSpark = (spark: Spark = {}): Spark => {
+export const createSpark = (spark: Spark): Spark => {
   return {
     name: spark.name ?? DEFAULT_SPARK_NAME,
     ...spark,
