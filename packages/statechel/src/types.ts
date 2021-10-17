@@ -61,11 +61,14 @@ export type Machine = Assign<
     isStarted: () => boolean;
     isStoped: () => void;
     run: () => void;
+    forceStop: () => void;
     destroy: () => void;
   }
 >;
 
 export type Queue<T> = {
+  lock: () => void;
+  unlock: () => void;
   push: (value: T) => void;
   shift: () => Undefinable<T>;
   head: () => Undefinable<T>;
@@ -128,7 +131,6 @@ export type SchemeBuild = {
   name: string;
   onIn: ActionBuild;
   onOut: ActionBuild;
-  getLeversBySpark: (spark: Spark) => LeverBuild[];
 };
 
 export type NodeBuild = StateBuild | SchemeBuild;
@@ -141,4 +143,5 @@ export type Mapper<T, V> = {
 export type Store<T> = {
   set: (value: T) => void;
   get: () => T;
+  map: (mapper: (value: T) => T) => void;
 };

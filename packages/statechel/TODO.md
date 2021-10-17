@@ -1,2 +1,3 @@
-- [] destroy
-- [] cyclic build
+- [x] destroy
+- [x] cyclic build
+- [х] force stop

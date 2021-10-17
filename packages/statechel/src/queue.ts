@@ -1,8 +1,11 @@
 import {SparkContainer, Queue} from './types';
 import {createEmitter} from './emitter';
 import {createStore} from './store';
+import {createLocker} from './locker';
 
 export const createQueue = (): Queue<SparkContainer> => {
+  const locker = createLocker();
+
   const sparksContainers = createStore<SparkContainer[]>([]);
 
   const shiftEmitter = createEmitter<SparkContainer>();
@@ -10,6 +13,10 @@ export const createQueue = (): Queue<SparkContainer> => {
   const pushEmitter = createEmitter<SparkContainer>();
 
   const push = (sparkContainer: SparkContainer) => {
+    if (locker.isLocked()) {
+      return;
+    }
+
     sparksContainers.get().push(sparkContainer);
     pushEmitter.emit(sparkContainer);
   };
@@ -51,6 +58,8 @@ export const createQueue = (): Queue<SparkContainer> => {
   };
 
   return {
+    lock: locker.lock,
+    unlock: locker.unlock,
     push,
     shift,
     head,

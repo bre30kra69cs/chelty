@@ -4,8 +4,6 @@ import {createInternalSparkContainer, createExternalSparkContainer} from './spar
 export const createEngine = (
   queue: Queue<SparkContainer>,
   activator: Activator,
-  // TODO: ?
-  locker: Locker,
 ): Engine<SparkContainer> => {
   const send = (sparkContainer: SparkContainer) => {
     queue.push(sparkContainer);

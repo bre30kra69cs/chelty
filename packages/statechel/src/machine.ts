@@ -4,7 +4,7 @@ import {createActivator} from './activator';
 import {createEngine, adaptInternalEngine, adaptExternalEngine} from './engine';
 import {createLocker} from './locker';
 import {createBuilder} from './builder';
-import {RUN_SYSTEM_SPARK} from './consts';
+import {RUN_SYSTEM_SPARK} from './predefined';
 
 export const createMachine = (scheme: Scheme): Machine => {
   const activator = createActivator();
@@ -13,14 +13,14 @@ export const createMachine = (scheme: Scheme): Machine => {
 
   const locker = createLocker();
 
-  const engine = createEngine(queue, activator, locker);
+  const machineLocker = createLocker();
+
+  const engine = createEngine(queue, activator);
   const internalEngine = adaptInternalEngine(engine);
   const externalEngine = adaptExternalEngine(engine);
   const systemEngine = adaptExternalEngine(engine);
 
   const builder = createBuilder(locker, internalEngine);
-
-  const machineLocker = createLocker();
 
   const eject = () => {
     return scheme;
@@ -33,7 +33,14 @@ export const createMachine = (scheme: Scheme): Machine => {
   };
 
   const run = () => {
+    queue.unlock();
+    machineLocker.unlock();
     systemEngine.send(RUN_SYSTEM_SPARK);
+  };
+
+  const forceStop = () => {
+    queue.lock();
+    machineLocker.lock();
   };
 
   const schemeBuild = builder.build(scheme);
@@ -66,6 +73,7 @@ export const createMachine = (scheme: Scheme): Machine => {
     eject,
     send,
     run,
+    forceStop,
     destroy,
   };
 };

@@ -9,7 +9,7 @@ export const createEmitter = <T = void>(): Emitter<T> => {
   };
 
   const unlisten = (action: EmitterAction<T>) => {
-    listners.set(listners.get().filter((listner) => listner !== action));
+    listners.map((value) => value.filter((listner) => listner !== action));
   };
 
   const listen: Lifecycle<EmitterAction<T>> = (listner) => {

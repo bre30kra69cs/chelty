@@ -13,7 +13,7 @@ export const createLocker = (init = false): Locker => {
   };
 
   const toggle = () => {
-    state.set(!state.get());
+    state.map((value) => !value);
   };
 
   const isLocked = () => {

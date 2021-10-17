@@ -1,7 +1,6 @@
 import {createSpark} from './spark';
 import {createTransition} from './transition';
-
-export const SYSTEM_RUN_NAME = '@system/run';
+import {SYSTEM_RUN_NAME} from './names';
 
 export const RUN_SYSTEM_SPARK = createSpark({
   name: SYSTEM_RUN_NAME,

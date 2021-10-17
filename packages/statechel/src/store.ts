@@ -11,8 +11,13 @@ export const createStore = <T>(initState: T): Store<T> => {
     return state;
   };
 
+  const map = (mapper: (value: T) => T) => {
+    state = mapper(state);
+  };
+
   return {
     set,
     get,
+    map,
   };
 };
