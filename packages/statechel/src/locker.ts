@@ -1,22 +1,23 @@
 import {Locker} from './types';
+import {createStore} from './store';
 
 export const createLocker = (init = false): Locker => {
-  let state = init;
+  const state = createStore(init);
 
   const lock = () => {
-    state = true;
+    state.set(true);
   };
 
   const unlock = () => {
-    state = false;
+    state.set(false);
   };
 
   const toggle = () => {
-    state = !state;
+    state.set(!state.get());
   };
 
   const isLocked = () => {
-    return state;
+    return state.get();
   };
 
   const isUnlocked = () => {

@@ -69,7 +69,6 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
   const buildLever = (lever: Lever): LeverBuild => {
     return {
       name: lever.name ?? 'lever',
-      from: buildNode(lever.from),
       spark: lever.spark,
       transition: buildTransition(lever.transition),
       to: buildNode(lever.to),

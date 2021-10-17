@@ -1,17 +1,18 @@
 import {SparkContainer, Queue} from './types';
 import {createEmitter} from './emitter';
+import {createStore} from './store';
 
 export const createQueue = (): Queue<SparkContainer> => {
-  const sparksContainers: SparkContainer[] = [];
+  const sparksContainers = createStore<SparkContainer[]>([]);
 
   const emitter = createEmitter<SparkContainer>();
 
   const push = (sparkContainer: SparkContainer) => {
-    sparksContainers.push(sparkContainer);
+    sparksContainers.get().push(sparkContainer);
   };
 
   const shift = () => {
-    const sparksContainer = sparksContainers.shift();
+    const sparksContainer = sparksContainers.get().shift();
 
     if (sparksContainer) {
       emitter.emit(sparksContainer);
@@ -21,20 +22,20 @@ export const createQueue = (): Queue<SparkContainer> => {
   };
 
   const head = () => {
-    return sparksContainers.at(0);
+    return sparksContainers.get().at(0);
   };
 
   const last = () => {
-    return sparksContainers.at(-1);
+    return sparksContainers.get().at(-1);
   };
 
   const tail = () => {
-    const [, ...rest] = sparksContainers;
+    const [, ...rest] = sparksContainers.get();
     return rest;
   };
 
   const body = () => {
-    const [, ...rest] = [...sparksContainers].reverse();
+    const [, ...rest] = [...sparksContainers.get()].reverse();
     return rest.reverse();
   };
 

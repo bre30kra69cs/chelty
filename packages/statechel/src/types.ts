@@ -20,10 +20,10 @@ export type SparkContainer = {
 export type Action = (engine: Engine<Spark>) => void;
 
 export type State = {
+  type: 'state';
   name?: string;
   onIn?: Action;
   onOut?: Action;
-  type: 'state';
 };
 
 export type Transition = {
@@ -33,7 +33,6 @@ export type Transition = {
 
 export type Lever = {
   name?: string;
-  from: Node;
   spark: Spark;
   transition: Transition;
   to: Node;
@@ -115,7 +114,6 @@ export type TransitionBuild = {
 
 export type LeverBuild = {
   name: string;
-  from: NodeBuild;
   spark: Spark;
   transition: TransitionBuild;
   to: NodeBuild;
@@ -134,4 +132,9 @@ export type NodeBuild = StateBuild | SchemeBuild;
 export type Mapper<T, V> = {
   set: (key: T, value: V) => void;
   get: (key: T) => void;
+};
+
+export type Store<T> = {
+  set: (value: T) => void;
+  get: () => T;
 };

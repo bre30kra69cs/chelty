@@ -1,18 +1,19 @@
 import {Activator, Node, Lifecycle} from './types';
 import {createEmitter} from './emitter';
+import {createStore} from './store';
 
 export const createActivator = (): Activator => {
-  let active: Node[] = [];
+  const active = createStore<Node[]>([]);
 
   const emitter = createEmitter();
 
   const remove = (node: Node) => {
-    active = active.filter((thing) => thing !== node);
+    active.set(active.get().filter((thing) => thing !== node));
   };
 
   const push = (node: Node) => {
     remove(node);
-    active.push(node);
+    active.get().push(node);
     emitter.emit();
 
     return () => {
@@ -22,11 +23,11 @@ export const createActivator = (): Activator => {
   };
 
   const getActive = () => {
-    return [...active];
+    return [...active.get()];
   };
 
   const isActive = (node: Node) => {
-    return active.some((thing) => thing === node);
+    return active.get().some((thing) => thing === node);
   };
 
   const onChange: Lifecycle<() => void> = (listner) => {
