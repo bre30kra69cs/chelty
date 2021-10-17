@@ -5,17 +5,20 @@ import {createStore} from './store';
 export const createQueue = (): Queue<SparkContainer> => {
   const sparksContainers = createStore<SparkContainer[]>([]);
 
-  const emitter = createEmitter<SparkContainer>();
+  const shiftEmitter = createEmitter<SparkContainer>();
+
+  const pushEmitter = createEmitter<SparkContainer>();
 
   const push = (sparkContainer: SparkContainer) => {
     sparksContainers.get().push(sparkContainer);
+    pushEmitter.emit(sparkContainer);
   };
 
   const shift = () => {
     const sparksContainer = sparksContainers.get().shift();
 
     if (sparksContainer) {
-      emitter.emit(sparksContainer);
+      shiftEmitter.emit(sparksContainer);
     }
 
     return sparksContainer;
@@ -40,7 +43,11 @@ export const createQueue = (): Queue<SparkContainer> => {
   };
 
   const onShift = (listner: (sparkContainer: SparkContainer) => void) => {
-    return emitter.listen(listner);
+    return shiftEmitter.listen(listner);
+  };
+
+  const onPush = (listner: (sparkContainer: SparkContainer) => void) => {
+    return pushEmitter.listen(listner);
   };
 
   return {
@@ -51,5 +58,6 @@ export const createQueue = (): Queue<SparkContainer> => {
     tail,
     body,
     onShift,
+    onPush,
   };
 };

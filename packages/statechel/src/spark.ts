@@ -19,3 +19,10 @@ export const createInternalSparkContainer = (spark: Spark): SparkContainer => {
     type: 'internal',
   };
 };
+
+export const createSystemSparkContainer = (spark: Spark): SparkContainer => {
+  return {
+    spark,
+    type: 'system',
+  };
+};

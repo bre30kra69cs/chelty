@@ -1,23 +1,23 @@
-import {Activator, Node, Lifecycle} from './types';
+import {Activator, NodeBuild, Lifecycle} from './types';
 import {createEmitter} from './emitter';
 import {createStore} from './store';
 
 export const createActivator = (): Activator => {
-  const active = createStore<Node[]>([]);
+  const active = createStore<NodeBuild[]>([]);
 
   const emitter = createEmitter();
 
-  const remove = (node: Node) => {
-    active.set(active.get().filter((thing) => thing !== node));
+  const remove = (nodeBuild: NodeBuild) => {
+    active.set(active.get().filter((thing) => thing !== nodeBuild));
   };
 
-  const push = (node: Node) => {
-    remove(node);
-    active.get().push(node);
+  const push = (nodeBuild: NodeBuild) => {
+    remove(nodeBuild);
+    active.get().push(nodeBuild);
     emitter.emit();
 
     return () => {
-      remove(node);
+      remove(nodeBuild);
       emitter.emit();
     };
   };
@@ -26,8 +26,8 @@ export const createActivator = (): Activator => {
     return [...active.get()];
   };
 
-  const isActive = (node: Node) => {
-    return active.get().some((thing) => thing === node);
+  const isActive = (nodeBuild: NodeBuild) => {
+    return active.get().some((thing) => thing === nodeBuild);
   };
 
   const onChange: Lifecycle<() => void> = (listner) => {

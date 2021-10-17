@@ -4,8 +4,8 @@ export type Undefinable<T> = T | undefined;
 
 export type Engine<T> = {
   send: (value: T) => void;
-  getActive: () => Node[];
-  isActive: (node: Node) => boolean;
+  getActive: () => NodeBuild[];
+  isActive: (nodeBuild: NodeBuild) => boolean;
 };
 
 export type Spark = {
@@ -14,7 +14,7 @@ export type Spark = {
 
 export type SparkContainer = {
   spark: Spark;
-  type: 'external' | 'internal';
+  type: 'external' | 'internal' | 'system';
 };
 
 export type Action = (engine: Engine<Spark>) => void;
@@ -60,6 +60,8 @@ export type Machine = Assign<
     stop: () => void;
     isStarted: () => boolean;
     isStoped: () => void;
+    run: () => void;
+    destroy: () => void;
   }
 >;
 
@@ -71,6 +73,7 @@ export type Queue<T> = {
   tail: () => T[];
   body: () => T[];
   onShift: Lifecycle<(value: T) => void>;
+  onPush: Lifecycle<(value: T) => void>;
 };
 
 export type EmitterAction<T> = (message: T) => void;
@@ -81,9 +84,9 @@ export type Emitter<T> = {
 };
 
 export type Activator = {
-  push: Lifecycle<Node>;
-  getActive: () => Node[];
-  isActive: (node: Node) => boolean;
+  push: Lifecycle<NodeBuild>;
+  getActive: () => NodeBuild[];
+  isActive: (nodeBuild: NodeBuild) => boolean;
   onChange: Lifecycle<() => void>;
 };
 
@@ -125,6 +128,7 @@ export type SchemeBuild = {
   name: string;
   onIn: ActionBuild;
   onOut: ActionBuild;
+  getLeversBySpark: (spark: Spark) => LeverBuild[];
 };
 
 export type NodeBuild = StateBuild | SchemeBuild;

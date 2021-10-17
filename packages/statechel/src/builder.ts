@@ -15,6 +15,7 @@ import {
   LeverBuild,
 } from './types';
 import {isState} from './node';
+import {SYSTEM_RUN_NAME, RUN_SYSTEM_SPARK, RUN_SYSTEM_TRANSITION} from './consts';
 
 export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder => {
   const buildAction = (action: () => void) => () => {
@@ -45,6 +46,8 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
   };
 
   const buildScheme = (scheme: Scheme): SchemeBuild => {
+    const leversBuild = scheme.levers.map(buildLever);
+
     return {
       name: scheme.name ?? 'scheme',
       onIn: buildAction(() => {
@@ -54,7 +57,10 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
         scheme?.onOut?.(engine);
       }),
       init: buildNode(scheme.init),
-      levers: scheme.levers.map(buildLever),
+      levers: leversBuild,
+      getLeversBySpark: (spark) => {
+        return leversBuild.filter((leverBuild) => leverBuild.spark === spark);
+      },
     };
   };
 
@@ -76,7 +82,19 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
   };
 
   const build = (scheme: Scheme): SchemeBuild => {
-    return buildScheme(scheme);
+    const schemeBuild = buildScheme(scheme);
+    return {
+      ...schemeBuild,
+      levers: [
+        ...schemeBuild.levers,
+        {
+          name: SYSTEM_RUN_NAME,
+          spark: RUN_SYSTEM_SPARK,
+          transition: buildTransition(RUN_SYSTEM_TRANSITION),
+          to: schemeBuild,
+        },
+      ],
+    };
   };
 
   return {

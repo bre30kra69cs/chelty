@@ -4,6 +4,7 @@ import {createActivator} from './activator';
 import {createEngine, adaptInternalEngine, adaptExternalEngine} from './engine';
 import {createLocker} from './locker';
 import {createBuilder} from './builder';
+import {RUN_SYSTEM_SPARK} from './consts';
 
 export const createMachine = (scheme: Scheme): Machine => {
   const activator = createActivator();
@@ -15,6 +16,7 @@ export const createMachine = (scheme: Scheme): Machine => {
   const engine = createEngine(queue, activator, locker);
   const internalEngine = adaptInternalEngine(engine);
   const externalEngine = adaptExternalEngine(engine);
+  const systemEngine = adaptExternalEngine(engine);
 
   const builder = createBuilder(locker, internalEngine);
 
@@ -30,11 +32,28 @@ export const createMachine = (scheme: Scheme): Machine => {
     }
   };
 
-  const init = () => {
-    builder.build(scheme);
+  const run = () => {
+    systemEngine.send(RUN_SYSTEM_SPARK);
   };
 
-  init();
+  const schemeBuild = builder.build(scheme);
+
+  const unlistenPushQueue = queue.onPush(() => {
+    if (locker.isLocked()) {
+      return;
+    }
+
+    queue.shift();
+  });
+
+  const unlistenShiftQueue = queue.onShift((sparkContainer) => {
+    queue.shift();
+  });
+
+  const destroy = () => {
+    unlistenPushQueue();
+    unlistenShiftQueue();
+  };
 
   return {
     getActive: engine.getActive,
@@ -46,5 +65,7 @@ export const createMachine = (scheme: Scheme): Machine => {
     isStoped: machineLocker.isLocked,
     eject,
     send,
+    run,
+    destroy,
   };
 };
