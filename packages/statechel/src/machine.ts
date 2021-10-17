@@ -1,4 +1,4 @@
-import {Machine, State, StateBuild, Spark} from './types';
+import {Machine, State, StateId, Spark} from './types';
 import {createQueue} from './queue';
 import {createActivator} from './activator';
 import {createEngine, adaptInternalEngine, adaptExternalEngine} from './engine';
@@ -23,7 +23,7 @@ export const createMachine = (state: State): Machine => {
   const externalEngine = adaptExternalEngine(engine);
   const systemEngine = adaptExternalEngine(engine);
 
-  const builder = createBuilder(locker, internalEngine);
+  const builder = createBuilder(locker, internalEngine, systemEngine);
 
   const eject = () => {
     return state;
@@ -67,15 +67,15 @@ export const createMachine = (state: State): Machine => {
     destroyStore.set(true);
   };
 
-  const onRemove = (listner: (state: State) => void) => {
+  const onRemove = (listner: (id: StateId) => void) => {
     return activator.onRemove((stateBuild) => {
-      listner(stateBuild.source);
+      listner(stateBuild.id);
     });
   };
 
-  const onPush = (listner: (state: State) => void) => {
+  const onPush = (listner: (id: StateId) => void) => {
     return activator.onPush((stateBuild) => {
-      listner(stateBuild.source);
+      listner(stateBuild.id);
     });
   };
 

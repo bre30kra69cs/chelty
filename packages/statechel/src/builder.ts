@@ -14,11 +14,16 @@ import {RUN_SYSTEM_SPARK, RUN_SYSTEM_TRANSITION} from './predefined';
 import {
   SYSTEM_RUN_NAME,
   DEFAULT_LEVER_NAME,
-  DEFAULT_SCHEME_NAME,
+  DEFAULT_STATE_NAME,
   DEFAULT_TRANSITION_NAME,
+  SYSTEM_FINAL_NAME,
 } from './names';
 
-export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder => {
+export const createBuilder = (
+  locker: Locker,
+  internalEngine: Engine<Spark>,
+  systemEngine: Engine<Spark>,
+): Builder => {
   const buildAction = (action: () => void) => () => {
     locker.lock();
     action();
@@ -31,7 +36,7 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
       source: transition,
       onEnter: buildAction(() => {
         // TODO: use copy
-        transition?.onEnter?.(engine);
+        transition?.onEnter?.(internalEngine);
       }),
     };
   };
@@ -39,24 +44,38 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
   const buildState = (state: State, parent?: StateBuild): StateBuild => {
     const stateBuild: StateBuild = {
       id: state.id,
-      name: state.name ?? DEFAULT_SCHEME_NAME,
+      name: state.name ?? DEFAULT_STATE_NAME,
+      isFinal: state.isFinal,
       isRoot: false,
-      source: state,
       childrens: [],
       levers: [],
       parent,
       onIn: buildAction(() => {
         // TODO: use copy
-        state?.onIn?.(engine);
+        state?.onIn?.(internalEngine);
+
+        if (parent) {
+          systemEngine.send({
+            id: parent.id,
+            name: SYSTEM_FINAL_NAME,
+          });
+        }
       }),
       onOut: buildAction(() => {
         // TODO: use copy
-        state?.onOut?.(engine);
+        state?.onOut?.(internalEngine);
       }),
     };
 
-    stateBuild.levers = state.levers.map((lever) => buildLever(lever, state, stateBuild));
-    stateBuild.childrens = state.childrens.map((children) => buildState(children, stateBuild));
+    stateBuild.levers =
+      state.levers?.map?.((lever) => {
+        return buildLever(lever, state, stateBuild);
+      }) ?? [];
+
+    stateBuild.childrens =
+      state.childrens?.map?.((children) => {
+        return buildState(children, stateBuild);
+      }) ?? [];
 
     return stateBuild;
   };
@@ -66,7 +85,8 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
       name: lever.name ?? DEFAULT_LEVER_NAME,
       spark: lever.spark,
       transition: buildTransition(lever.transition),
-      to: lever.to === state ? stateBuild : buildState(lever.to, stateBuild),
+      source: stateBuild,
+      target: lever.target === state ? stateBuild : buildState(lever.target, stateBuild),
     };
   };
 
@@ -74,11 +94,13 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
     const stateBuild = buildState(state);
 
     stateBuild.isRoot = true;
+
     stateBuild.levers.push({
       name: SYSTEM_RUN_NAME,
       spark: RUN_SYSTEM_SPARK,
       transition: buildTransition(RUN_SYSTEM_TRANSITION),
-      to: stateBuild,
+      source: stateBuild,
+      target: stateBuild,
     });
 
     return stateBuild;

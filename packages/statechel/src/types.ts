@@ -1,3 +1,7 @@
+export type StateId = string;
+
+export type SparkId = string;
+
 export type Assign<T, P> = T & P;
 
 export type Undefinable<T> = T | undefined;
@@ -9,7 +13,7 @@ export type Engine<T> = {
 };
 
 export type Spark = {
-  id: string;
+  id: SparkId;
   name?: string;
 };
 
@@ -28,15 +32,16 @@ export type Transition = {
 export type Lever = {
   spark: Spark;
   transition: Transition;
-  to: State;
+  target: State;
   name?: string;
 };
 
 export type State = {
-  id: string;
+  id: StateId;
   name?: string;
   levers?: Lever[];
   childrens?: State[];
+  isFinal?: boolean;
   onIn?: Action;
   onOut?: Action;
 };
@@ -54,8 +59,8 @@ export type Machine = {
   forceStop: () => void;
   destroy: () => void;
   isDestroyed: () => boolean;
-  onRemove: Lifecycle<(state: State) => void>;
-  onPush: Lifecycle<(state: State) => void>;
+  onRemove: Lifecycle<(id: StateId) => void>;
+  onPush: Lifecycle<(id: StateId) => void>;
 };
 
 export type Queue<T> = {
@@ -111,17 +116,17 @@ export type LeverBuild = {
   name: string;
   spark: Spark;
   transition: TransitionBuild;
-  from?: StateBuild;
-  to: StateBuild;
+  source: StateBuild;
+  target: StateBuild;
 };
 
 export type StateBuild = {
-  id: string;
+  id: StateId;
   name: string;
   isRoot: boolean;
   levers: LeverBuild[];
-  source: State;
   childrens: StateBuild[];
+  isFinal: boolean;
   onIn: ActionBuild;
   onOut: ActionBuild;
   parent?: StateBuild;
