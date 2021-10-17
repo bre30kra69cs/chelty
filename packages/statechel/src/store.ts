@@ -12,7 +12,7 @@ export const createStore = <T>(initState: T): Store<T> => {
   };
 
   const map = (mapper: (value: T) => T) => {
-    state = mapper(state);
+    set(mapper(get()));
   };
 
   return {

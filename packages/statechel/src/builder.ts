@@ -34,6 +34,7 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
   const buildState = (state: State): StateBuild => {
     return {
       name: state.name ?? DEFAULT_STATE_NAME,
+      source: state,
       onIn: buildAction(() => {
         state?.onIn?.(engine);
       }),
@@ -46,6 +47,7 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
   const buildTransition = (transition: Transition): TransitionBuild => {
     return {
       name: transition.name ?? DEFAULT_TRANSITION_NAME,
+      source: transition,
       onEnter: buildAction(() => {
         transition?.onEnter?.(engine);
       }),
@@ -55,6 +57,7 @@ export const createBuilder = (locker: Locker, engine: Engine<Spark>): Builder =>
   const buildScheme = (scheme: Scheme): SchemeBuild => {
     const schemeBuild = {
       name: scheme.name ?? DEFAULT_SCHEME_NAME,
+      source: scheme,
       onIn: buildAction(() => {
         scheme?.onIn?.(engine);
       }),

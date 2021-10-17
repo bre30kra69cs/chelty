@@ -6,7 +6,7 @@ import {createLocker} from './locker';
 export const createQueue = (): Queue<SparkContainer> => {
   const locker = createLocker();
 
-  const sparksContainers = createStore<SparkContainer[]>([]);
+  const sparksContainersStore = createStore<SparkContainer[]>([]);
 
   const shiftEmitter = createEmitter<SparkContainer>();
 
@@ -17,12 +17,12 @@ export const createQueue = (): Queue<SparkContainer> => {
       return;
     }
 
-    sparksContainers.get().push(sparkContainer);
+    sparksContainersStore.get().push(sparkContainer);
     pushEmitter.emit(sparkContainer);
   };
 
   const shift = () => {
-    const sparksContainer = sparksContainers.get().shift();
+    const sparksContainer = sparksContainersStore.get().shift();
 
     if (sparksContainer) {
       shiftEmitter.emit(sparksContainer);
@@ -32,41 +32,33 @@ export const createQueue = (): Queue<SparkContainer> => {
   };
 
   const head = () => {
-    return sparksContainers.get().at(0);
+    return sparksContainersStore.get().at(0);
   };
 
   const last = () => {
-    return sparksContainers.get().at(-1);
+    return sparksContainersStore.get().at(-1);
   };
 
   const tail = () => {
-    const [, ...rest] = sparksContainers.get();
+    const [, ...rest] = sparksContainersStore.get();
     return rest;
   };
 
   const body = () => {
-    const [, ...rest] = [...sparksContainers.get()].reverse();
+    const [, ...rest] = [...sparksContainersStore.get()].reverse();
     return rest.reverse();
-  };
-
-  const onShift = (listner: (sparkContainer: SparkContainer) => void) => {
-    return shiftEmitter.listen(listner);
-  };
-
-  const onPush = (listner: (sparkContainer: SparkContainer) => void) => {
-    return pushEmitter.listen(listner);
   };
 
   return {
     lock: locker.lock,
     unlock: locker.unlock,
+    onShift: shiftEmitter.listen,
+    onPush: pushEmitter.listen,
     push,
     shift,
     head,
     last,
     tail,
     body,
-    onShift,
-    onPush,
   };
 };

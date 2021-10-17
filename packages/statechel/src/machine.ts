@@ -1,12 +1,15 @@
-import {Machine, Scheme, Lifecycle, Spark} from './types';
+import {Machine, Scheme, Lifecycle, Spark, Node} from './types';
 import {createQueue} from './queue';
 import {createActivator} from './activator';
 import {createEngine, adaptInternalEngine, adaptExternalEngine} from './engine';
 import {createLocker} from './locker';
 import {createBuilder} from './builder';
 import {RUN_SYSTEM_SPARK} from './predefined';
+import {createStore} from './store';
 
 export const createMachine = (scheme: Scheme): Machine => {
+  const destroyStore = createStore(false);
+
   const activator = createActivator();
 
   const queue = createQueue();
@@ -60,20 +63,33 @@ export const createMachine = (scheme: Scheme): Machine => {
   const destroy = () => {
     unlistenPushQueue();
     unlistenShiftQueue();
+    destroyStore.set(true);
+  };
+
+  const onRemove = (listner: (node: Node) => void) => {
+    return activator.onRemove((nodeBuild) => {
+      listner(nodeBuild.source);
+    });
+  };
+
+  const onPush = (listner: (node: Node) => void) => {
+    return activator.onPush((nodeBuild) => {
+      listner(nodeBuild.source);
+    });
   };
 
   return {
-    getActive: engine.getActive,
-    isActive: engine.isActive,
-    onChange: activator.onChange,
     start: machineLocker.unlock,
     stop: machineLocker.lock,
     isStarted: machineLocker.isUnlocked,
     isStoped: machineLocker.isLocked,
+    isDestroyed: destroyStore.get,
     eject,
     send,
     run,
     forceStop,
     destroy,
+    onRemove,
+    onPush,
   };
 };

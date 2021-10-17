@@ -3,41 +3,44 @@ import {createEmitter} from './emitter';
 import {createStore} from './store';
 
 export const createActivator = (): Activator => {
-  const active = createStore<NodeBuild[]>([]);
+  const activeStore = createStore<NodeBuild[]>([]);
 
-  const emitter = createEmitter();
+  const pushEmitter = createEmitter<NodeBuild>();
+
+  const removeEmitter = createEmitter<NodeBuild>();
+
+  const clean = (nodeBuild: NodeBuild) => {
+    activeStore.map((value) => value.filter((thing) => thing !== nodeBuild));
+  };
 
   const remove = (nodeBuild: NodeBuild) => {
-    active.set(active.get().filter((thing) => thing !== nodeBuild));
+    clean(nodeBuild);
+    removeEmitter.emit(nodeBuild);
   };
 
   const push = (nodeBuild: NodeBuild) => {
-    remove(nodeBuild);
-    active.get().push(nodeBuild);
-    emitter.emit();
+    clean(nodeBuild);
+    activeStore.get().push(nodeBuild);
+    pushEmitter.emit(nodeBuild);
 
     return () => {
       remove(nodeBuild);
-      emitter.emit();
     };
   };
 
   const getActive = () => {
-    return [...active.get()];
+    return [...activeStore.get()];
   };
 
   const isActive = (nodeBuild: NodeBuild) => {
-    return active.get().some((thing) => thing === nodeBuild);
-  };
-
-  const onChange: Lifecycle<() => void> = (listner) => {
-    return emitter.listen(listner);
+    return activeStore.get().some((thing) => thing === nodeBuild);
   };
 
   return {
+    onRemove: removeEmitter.listen,
+    onPush: pushEmitter.listen,
     push,
     getActive,
     isActive,
-    onChange,
   };
 };

@@ -51,20 +51,20 @@ export type Node = State | Scheme;
 
 export type Lifecycle<T> = (listner: T) => () => void;
 
-export type Machine = Assign<
-  Engine<Spark>,
-  {
-    eject: () => Scheme;
-    onChange: Lifecycle<() => void>;
-    start: () => void;
-    stop: () => void;
-    isStarted: () => boolean;
-    isStoped: () => void;
-    run: () => void;
-    forceStop: () => void;
-    destroy: () => void;
-  }
->;
+export type Machine = {
+  send: (spark: Spark) => void;
+  eject: () => Scheme;
+  start: () => void;
+  stop: () => void;
+  isStarted: () => boolean;
+  isStoped: () => void;
+  run: () => void;
+  forceStop: () => void;
+  destroy: () => void;
+  isDestroyed: () => boolean;
+  onRemove: Lifecycle<(node: Node) => void>;
+  onPush: Lifecycle<(node: Node) => void>;
+};
 
 export type Queue<T> = {
   lock: () => void;
@@ -90,7 +90,8 @@ export type Activator = {
   push: Lifecycle<NodeBuild>;
   getActive: () => NodeBuild[];
   isActive: (nodeBuild: NodeBuild) => boolean;
-  onChange: Lifecycle<() => void>;
+  onRemove: Lifecycle<(nodeBuild: NodeBuild) => void>;
+  onPush: Lifecycle<(nodeBuild: NodeBuild) => void>;
 };
 
 export type Locker = {
@@ -109,12 +110,14 @@ export type ActionBuild = () => void;
 
 export type StateBuild = {
   name: string;
+  source: State;
   onIn: ActionBuild;
   onOut: ActionBuild;
 };
 
 export type TransitionBuild = {
   name: string;
+  source: Transition;
   onEnter: ActionBuild;
 };
 
@@ -129,6 +132,7 @@ export type SchemeBuild = {
   init: NodeBuild;
   levers: LeverBuild[];
   name: string;
+  source: Scheme;
   onIn: ActionBuild;
   onOut: ActionBuild;
 };
