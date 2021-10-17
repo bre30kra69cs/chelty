@@ -1,4 +1,4 @@
-import {Machine, Scheme, Lifecycle, Spark, Node} from './types';
+import {Machine, Scheme, SchemeBuild, Spark} from './types';
 import {createQueue} from './queue';
 import {createActivator} from './activator';
 import {createEngine, adaptInternalEngine, adaptExternalEngine} from './engine';
@@ -47,6 +47,7 @@ export const createMachine = (scheme: Scheme): Machine => {
   };
 
   const schemeBuild = builder.build(scheme);
+  activator.push(schemeBuild);
 
   const unlistenPushQueue = queue.onPush(() => {
     if (locker.isLocked()) {
@@ -66,15 +67,15 @@ export const createMachine = (scheme: Scheme): Machine => {
     destroyStore.set(true);
   };
 
-  const onRemove = (listner: (node: Node) => void) => {
-    return activator.onRemove((nodeBuild) => {
-      listner(nodeBuild.source);
+  const onRemove = (listner: (scheme: Scheme) => void) => {
+    return activator.onRemove((schemeBuild) => {
+      listner(schemeBuild.source);
     });
   };
 
-  const onPush = (listner: (node: Node) => void) => {
-    return activator.onPush((nodeBuild) => {
-      listner(nodeBuild.source);
+  const onPush = (listner: (scheme: Scheme) => void) => {
+    return activator.onPush((schemeBuild) => {
+      listner(schemeBuild.source);
     });
   };
 

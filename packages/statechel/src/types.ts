@@ -4,8 +4,8 @@ export type Undefinable<T> = T | undefined;
 
 export type Engine<T> = {
   send: (value: T) => void;
-  getActive: () => NodeBuild[];
-  isActive: (nodeBuild: NodeBuild) => boolean;
+  getActive: () => SchemeBuild[];
+  isActive: (schemeBuild: SchemeBuild) => boolean;
 };
 
 export type Spark = {
@@ -19,13 +19,6 @@ export type SparkContainer = {
 
 export type Action = (engine: Engine<Spark>) => void;
 
-export type State = {
-  type: 'state';
-  name?: string;
-  onIn?: Action;
-  onOut?: Action;
-};
-
 export type Transition = {
   name?: string;
   onEnter?: Action;
@@ -35,19 +28,16 @@ export type Lever = {
   name?: string;
   spark: Spark;
   transition: Transition;
-  to: Node;
+  to: Scheme;
 };
 
 export type Scheme = {
-  init: Node;
-  levers: Lever[];
-  type: 'scheme';
+  init: Scheme;
+  levers?: Lever[];
   name?: string;
   onIn?: Action;
   onOut?: Action;
 };
-
-export type Node = State | Scheme;
 
 export type Lifecycle<T> = (listner: T) => () => void;
 
@@ -62,8 +52,8 @@ export type Machine = {
   forceStop: () => void;
   destroy: () => void;
   isDestroyed: () => boolean;
-  onRemove: Lifecycle<(node: Node) => void>;
-  onPush: Lifecycle<(node: Node) => void>;
+  onRemove: Lifecycle<(scheme: Scheme) => void>;
+  onPush: Lifecycle<(scheme: Scheme) => void>;
 };
 
 export type Queue<T> = {
@@ -87,11 +77,12 @@ export type Emitter<T> = {
 };
 
 export type Activator = {
-  push: Lifecycle<NodeBuild>;
-  getActive: () => NodeBuild[];
-  isActive: (nodeBuild: NodeBuild) => boolean;
-  onRemove: Lifecycle<(nodeBuild: NodeBuild) => void>;
-  onPush: Lifecycle<(nodeBuild: NodeBuild) => void>;
+  push: (schemeBuild: SchemeBuild) => void;
+  remove: (schemeBuild: SchemeBuild) => void;
+  getActive: () => SchemeBuild[];
+  isActive: (schemeBuild: SchemeBuild) => boolean;
+  onRemove: Lifecycle<(schemeBuild: SchemeBuild) => void>;
+  onPush: Lifecycle<(schemeBuild: SchemeBuild) => void>;
 };
 
 export type Locker = {
@@ -108,13 +99,6 @@ export type Builder = {
 
 export type ActionBuild = () => void;
 
-export type StateBuild = {
-  name: string;
-  source: State;
-  onIn: ActionBuild;
-  onOut: ActionBuild;
-};
-
 export type TransitionBuild = {
   name: string;
   source: Transition;
@@ -125,19 +109,18 @@ export type LeverBuild = {
   name: string;
   spark: Spark;
   transition: TransitionBuild;
-  to: NodeBuild;
+  to: SchemeBuild;
 };
 
 export type SchemeBuild = {
-  init: NodeBuild;
+  isRoot: boolean;
+  init: SchemeBuild;
   levers: LeverBuild[];
   name: string;
   source: Scheme;
   onIn: ActionBuild;
   onOut: ActionBuild;
 };
-
-export type NodeBuild = StateBuild | SchemeBuild;
 
 export type Mapper<T, V> = {
   set: (key: T, value: V) => void;
