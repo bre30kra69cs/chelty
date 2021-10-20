@@ -8,7 +8,7 @@ import {
   Engine,
   Spark,
 } from './types';
-import {DEFAULT_STATE_NAME, DEFAULT_TRANSITION_NAME, SYSTEM_FINAL_NAME} from './names';
+import {DEFAULT_STATE_NAME, DEFAULT_TRANSITION_NAME} from './names';
 
 export const createBuilder = (
   locker: Locker,

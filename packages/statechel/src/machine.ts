@@ -4,18 +4,17 @@ import {createActivator} from './activator';
 import {createEngine, adaptInternalEngine, adaptExternalEngine} from './engine';
 import {createLocker} from './locker';
 import {createBuilder} from './builder';
-import {createStore} from './store';
+import {createMst} from './mst';
+import {MACHINE_STATE_MST_SCHEME} from './consts';
 
 export const createMachine = (state: State): Machine => {
-  const destroyStore = createStore(false);
+  const machineState = createMst(MACHINE_STATE_MST_SCHEME);
 
   const activator = createActivator();
 
   const queue = createQueue();
 
   const locker = createLocker();
-
-  const machineLocker = createLocker();
 
   const engine = createEngine(queue, activator);
   const internalEngine = adaptInternalEngine(engine);
@@ -29,19 +28,29 @@ export const createMachine = (state: State): Machine => {
   };
 
   const send = (spark: Spark) => {
-    if (machineLocker.isUnlocked()) {
+    if (machineState.get() === 'started') {
       externalEngine.send(spark);
     }
   };
 
-  const run = () => {
+  const start = () => {
+    if (!machineState.send('start')) {
+      return;
+    }
+
     queue.unlock();
-    machineLocker.unlock();
+  };
+
+  const stop = () => {
+    machineState.send('stop');
   };
 
   const forceStop = () => {
+    if (!machineState.send('stop')) {
+      return;
+    }
+
     queue.lock();
-    machineLocker.lock();
   };
 
   const stateBuild = builder.build(state);
@@ -55,14 +64,18 @@ export const createMachine = (state: State): Machine => {
     queue.shift();
   });
 
-  const unlistenShiftQueue = queue.onShift((sparkContainer) => {
+  const unlistenShiftQueue = queue.onShift(() => {
     queue.shift();
   });
 
   const destroy = () => {
+    if (!machineState.send('destroy')) {
+      return;
+    }
+
+    queue.lock();
     unlistenPushQueue();
     unlistenShiftQueue();
-    destroyStore.set(true);
   };
 
   const onRemove = (listner: (id: StateId) => void) => {
@@ -78,16 +91,13 @@ export const createMachine = (state: State): Machine => {
   };
 
   return {
-    start: machineLocker.unlock,
-    stop: machineLocker.lock,
-    isStarted: machineLocker.isUnlocked,
-    isStoped: machineLocker.isLocked,
-    isDestroyed: destroyStore.get,
+    getState: machineState.get,
+    start,
+    stop,
+    destroy,
     eject,
     send,
-    run,
     forceStop,
-    destroy,
     onRemove,
     onPush,
   };

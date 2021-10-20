@@ -1,3 +1,4 @@
 - [x] destroy
 - [x] cyclic build
 - [х] force stop
+- [] logger

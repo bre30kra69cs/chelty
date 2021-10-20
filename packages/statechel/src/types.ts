@@ -43,17 +43,18 @@ export type State = {
 
 export type Lifecycle<T> = (listner: T) => () => void;
 
+export type MachineState = 'init' | 'started' | 'stoped' | 'destroyed';
+
+export type MachineSpark = 'start' | 'stop' | 'destroy';
+
 export type Machine = {
   send: (spark: Spark) => void;
   eject: () => State;
   start: () => void;
   stop: () => void;
-  isStarted: () => boolean;
-  isStoped: () => void;
-  run: () => void;
+  getState: () => MachineState;
   forceStop: () => void;
   destroy: () => void;
-  isDestroyed: () => boolean;
   onRemove: Lifecycle<(id: StateId) => void>;
   onPush: Lifecycle<(id: StateId) => void>;
 };
@@ -129,4 +130,20 @@ export type Store<T> = {
   set: (value: T) => void;
   get: () => T;
   map: (mapper: (value: T) => T) => void;
+};
+
+export type MstScheme<S extends string, Sr extends string, I extends string> = {
+  states: S[];
+  sparks: Sr[];
+  transitions: {
+    source: S;
+    target: S;
+    spark: Sr;
+  }[];
+  init: I;
+};
+
+export type Mst<T extends string, S extends string> = {
+  get: () => T;
+  send: (spark: S) => boolean;
 };

@@ -14,11 +14,11 @@ export const createActivator = (): Activator => {
   };
 
   const isActive = (stateBuild: StateBuild) => {
-    return activeStore.get().some((value) => value === stateBuild);
+    return activeStore.get().some((state) => state.id === stateBuild.id);
   };
 
   const remove = (stateBuild: StateBuild) => {
-    activeStore.map((value) => value.filter((item) => item !== stateBuild));
+    activeStore.map((state) => state.filter((item) => item.id !== stateBuild.id));
     removeEmitter.emit(stateBuild);
   };
 
