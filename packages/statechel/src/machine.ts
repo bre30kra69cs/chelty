@@ -4,7 +4,6 @@ import {createActivator} from './activator';
 import {createEngine, adaptInternalEngine, adaptExternalEngine} from './engine';
 import {createLocker} from './locker';
 import {createBuilder} from './builder';
-import {RUN_SYSTEM_SPARK} from './predefined';
 import {createStore} from './store';
 
 export const createMachine = (state: State): Machine => {
@@ -38,7 +37,6 @@ export const createMachine = (state: State): Machine => {
   const run = () => {
     queue.unlock();
     machineLocker.unlock();
-    systemEngine.send(RUN_SYSTEM_SPARK);
   };
 
   const forceStop = () => {

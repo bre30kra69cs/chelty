@@ -25,23 +25,18 @@ export type SparkContainer = {
 export type Action = (engine: Engine<Spark>) => void;
 
 export type Transition = {
-  name?: string;
-  onEnter?: Action;
-};
-
-export type Lever = {
   spark: Spark;
-  transition: Transition;
+  source: State;
   target: State;
   name?: string;
+  onEnter?: Action;
 };
 
 export type State = {
   id: StateId;
   name?: string;
-  levers?: Lever[];
-  childrens?: State[];
-  isFinal?: boolean;
+  init?: State[];
+  transitions?: Transition[];
   onIn?: Action;
   onOut?: Action;
 };
@@ -108,28 +103,21 @@ export type ActionBuild = () => void;
 
 export type TransitionBuild = {
   name: string;
-  source: Transition;
-  onEnter: ActionBuild;
-};
-
-export type LeverBuild = {
-  name: string;
   spark: Spark;
-  transition: TransitionBuild;
   source: StateBuild;
   target: StateBuild;
+  onEnter: ActionBuild;
 };
 
 export type StateBuild = {
   id: StateId;
   name: string;
   isRoot: boolean;
-  levers: LeverBuild[];
-  childrens: StateBuild[];
-  isFinal: boolean;
+  init: State[];
+  transitions: TransitionBuild[];
+  parent?: StateBuild;
   onIn: ActionBuild;
   onOut: ActionBuild;
-  parent?: StateBuild;
 };
 
 export type Mapper<T, V> = {
