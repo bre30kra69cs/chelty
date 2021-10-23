@@ -9,6 +9,8 @@ import {
   Spark,
 } from './types';
 import {DEFAULT_STATE_NAME, DEFAULT_TRANSITION_NAME} from './names';
+import {ROOT_STATE_ID} from './ids';
+import {initSpark} from './system';
 
 export const createBuilder = (
   locker: Locker,
@@ -21,6 +23,32 @@ export const createBuilder = (
     locker.unlock();
   };
 
+  const createInitTransitionBuild = (source: StateBuild, target: StateBuild): TransitionBuild => {
+    return {
+      name: DEFAULT_TRANSITION_NAME,
+      source,
+      target,
+      spark: initSpark,
+      onEnter: () => {},
+    };
+  };
+
+  const buildTransition = (
+    transition: Transition,
+    state: State,
+    stateBuild: StateBuild,
+  ): TransitionBuild => {
+    return {
+      name: transition.name ?? DEFAULT_TRANSITION_NAME,
+      spark: transition.spark,
+      source: stateBuild,
+      target: transition.target === state ? stateBuild : buildState(transition.target, stateBuild),
+      onEnter: buildAction(() => {
+        transition.onEnter?.(internalEngine);
+      }),
+    };
+  };
+
   const buildState = (state: State, parent?: StateBuild): StateBuild => {
     const stateBuild: StateBuild = {
       id: state.id,
@@ -30,10 +58,10 @@ export const createBuilder = (
       transitions: [],
       parent,
       onIn: buildAction(() => {
-        state?.onIn?.(internalEngine);
+        state.onIn?.(internalEngine);
       }),
       onOut: buildAction(() => {
-        state?.onOut?.(internalEngine);
+        state.onOut?.(internalEngine);
       }),
     };
 
@@ -50,28 +78,23 @@ export const createBuilder = (
     return stateBuild;
   };
 
-  const buildTransition = (
-    transition: Transition,
-    state: State,
-    stateBuild: StateBuild,
-  ): TransitionBuild => {
-    return {
-      name: transition.name ?? DEFAULT_TRANSITION_NAME,
-      spark: transition.spark,
-      source: stateBuild,
-      target: transition.target === state ? stateBuild : buildState(transition.target, stateBuild),
-      onEnter: buildAction(() => {
-        transition?.onEnter?.(internalEngine);
-      }),
-    };
-  };
-
   const build = (state: State): StateBuild => {
     const stateBuild = buildState(state);
 
-    stateBuild.isRoot = true;
+    const rootStateBuild: StateBuild = {
+      id: ROOT_STATE_ID,
+      name: DEFAULT_STATE_NAME,
+      isRoot: true,
+      init: [stateBuild],
+      transitions: [],
+      onIn: () => {},
+      onOut: () => {},
+    };
 
-    return stateBuild;
+    rootStateBuild.transitions = [createInitTransitionBuild(rootStateBuild, stateBuild)];
+    stateBuild.parent = rootStateBuild;
+
+    return rootStateBuild;
   };
 
   return {

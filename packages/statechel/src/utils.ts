@@ -1,17 +1,29 @@
-import {State, StateBuild} from './types';
+import {State, StateBuild, StateType} from './types';
 
-export const tap = <T>(value: T): T => {
-  return value;
+export const hasCompoundedStrictSign = (state: State | StateBuild) => {
+  return !!state.transitions?.length && state.transitions.length > 0;
 };
 
-export const isCompoundedState = (state: State | StateBuild) => {
-  return !!state.transitions?.length;
+export const hasAtomicStrictSign = (state: State | StateBuild) => {
+  return !state.transitions && !state.init;
 };
 
-export const isAtomicState = (state: State | StateBuild) => {
-  return !isCompoundedState(state);
+export const hasParallelStrictSign = (state: State | StateBuild) => {
+  return !!state.init?.length && state.init.length > 1;
 };
 
-export const isParallelState = (state: State | StateBuild) => {
-  return state.init?.length && state.init.length > 1;
+export const getStateTypeStrictly = (state: State | StateBuild): StateType => {
+  if (hasAtomicStrictSign(state)) {
+    return 'atomic';
+  }
+
+  if (hasCompoundedStrictSign(state) && !hasParallelStrictSign(state)) {
+    return 'compounded';
+  }
+
+  if (!hasCompoundedStrictSign(state) && hasParallelStrictSign(state)) {
+    return 'parallel';
+  }
+
+  return 'other';
 };

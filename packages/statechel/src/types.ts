@@ -43,9 +43,7 @@ export type State = {
 
 export type Lifecycle<T> = (listner: T) => () => void;
 
-export type MachineState = 'init' | 'started' | 'stoped' | 'destroyed';
-
-export type MachineSpark = 'start' | 'stop' | 'destroy';
+export type MachineState = 'init' | 'working' | 'stopped' | 'destroyed';
 
 export type Machine = {
   send: (spark: Spark) => void;
@@ -114,16 +112,11 @@ export type StateBuild = {
   id: StateId;
   name: string;
   isRoot: boolean;
-  init: State[];
+  init: StateBuild[];
   transitions: TransitionBuild[];
   parent?: StateBuild;
   onIn: ActionBuild;
   onOut: ActionBuild;
-};
-
-export type Mapper<T, V> = {
-  set: (key: T, value: V) => void;
-  get: (key: T) => void;
 };
 
 export type Store<T> = {
@@ -132,18 +125,8 @@ export type Store<T> = {
   map: (mapper: (value: T) => T) => void;
 };
 
-export type MstScheme<S extends string, Sr extends string, I extends string> = {
-  states: S[];
-  sparks: Sr[];
-  transitions: {
-    source: S;
-    target: S;
-    spark: Sr;
-  }[];
-  init: I;
+export type Mover = {
+  activate: (stateBuild: StateBuild) => void;
 };
 
-export type Mst<T extends string, S extends string> = {
-  get: () => T;
-  send: (spark: S) => boolean;
-};
+export type StateType = 'atomic' | 'compounded' | 'parallel' | 'other';

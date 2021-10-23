@@ -1,14 +1,13 @@
-import {Machine, State, StateId, Spark} from './types';
+import {Machine, MachineState, State, StateId, Spark} from './types';
 import {createQueue} from './queue';
 import {createActivator} from './activator';
 import {createEngine, adaptInternalEngine, adaptExternalEngine} from './engine';
 import {createLocker} from './locker';
 import {createBuilder} from './builder';
-import {createMst} from './mst';
-import {MACHINE_STATE_MST_SCHEME} from './consts';
+import {createStore} from './store';
 
 export const createMachine = (state: State): Machine => {
-  const machineState = createMst(MACHINE_STATE_MST_SCHEME);
+  const machineState = createStore<MachineState>('init');
 
   const activator = createActivator();
 
@@ -22,19 +21,20 @@ export const createMachine = (state: State): Machine => {
   const systemEngine = adaptExternalEngine(engine);
 
   const builder = createBuilder(locker, internalEngine, systemEngine);
+  const rootStateBuild = builder.build(state);
 
   const eject = () => {
     return state;
   };
 
   const send = (spark: Spark) => {
-    if (machineState.get() === 'started') {
+    if (machineState.get() === 'working') {
       externalEngine.send(spark);
     }
   };
 
   const start = () => {
-    if (!machineState.send('start')) {
+    if (machineState.get() === 'working' || machineState.get() === 'destroyed') {
       return;
     }
 
@@ -42,19 +42,21 @@ export const createMachine = (state: State): Machine => {
   };
 
   const stop = () => {
-    machineState.send('stop');
-  };
-
-  const forceStop = () => {
-    if (!machineState.send('stop')) {
+    if (machineState.get() === 'stopped' || machineState.get() === 'destroyed') {
       return;
     }
 
-    queue.lock();
+    machineState.set('stopped');
   };
 
-  const stateBuild = builder.build(state);
-  activator.push(stateBuild);
+  const forceStop = () => {
+    if (machineState.get() === 'stopped' || machineState.get() === 'destroyed') {
+      return;
+    }
+
+    machineState.set('stopped');
+    queue.lock();
+  };
 
   const unlistenPushQueue = queue.onPush(() => {
     if (locker.isLocked()) {
@@ -69,13 +71,14 @@ export const createMachine = (state: State): Machine => {
   });
 
   const destroy = () => {
-    if (!machineState.send('destroy')) {
+    if (machineState.get() === 'destroyed') {
       return;
     }
 
     queue.lock();
     unlistenPushQueue();
     unlistenShiftQueue();
+    machineState.set('destroyed');
   };
 
   const onRemove = (listner: (id: StateId) => void) => {
